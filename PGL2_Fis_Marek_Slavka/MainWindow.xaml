@@ -1,0 +1,375 @@
+﻿<Window x:Class="PGL2_Fis_Marek_Slavka.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PGL2_Fis_Marek_Slavka"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        mc:Ignorable="d"
+        ResizeMode="NoResize"
+        Title="StagHelper" Height="450" Width="800">
+    <Grid Name="RootGrid">
+        <Grid Name="StartUpGridWrapperGrid" Grid.ColumnSpan="2">
+            <Grid Name="StartUpGrid" Visibility="Collapsed">
+                <Grid ZIndex="1" Name="StartUpWelcomeGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="477*"/>
+                        <ColumnDefinition Width="323*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Name="StartUpLoginButton"  Click="StartUpLoginButton_OnClick" Content="LogIn" FontSize="80" HorizontalAlignment="Left" Margin="477,-8,-12,-8.4" VerticalAlignment="Top" Width="335" Height="466" Grid.ColumnSpan="2"/>
+                    <TextBlock Grid.Column="0" TextAlignment="Center" HorizontalAlignment="Left" Margin="0,414,0,-0.4" TextWrapping="Wrap" VerticalAlignment="Top" Height="36" Width="157"><Run Text=""/><LineBreak/><Run Text="© Marek Slavka 2018, Ujep"/></TextBlock>
+                    <Label Grid.Column="0" Content="ѕтαɢнelper" FontSize="80" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Margin="0,0,323,-0.4" VerticalAlignment="Stretch" Grid.ColumnSpan="2"/>
+                </Grid>
+            </Grid>
+            <DockPanel Name="StartUpLogInDialogPanel" ZIndex="100" Background="{DynamicResource PrimaryHueMidBrush}" Visibility="Collapsed">
+                <DockPanel Background="{DynamicResource MaterialDesignBodyLight}">
+                    <materialDesign:DialogHost HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           IsOpen="{Binding IsSample4DialogOpen}"
+                                           DialogContent="{Binding Sample4Content}"
+                                           CloseOnClickAway="True">
+
+                        <Border BorderThickness="1" Background="{DynamicResource MaterialDesignSelection}" BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                            MinWidth="256" MinHeight="256" ClipToBounds="True">
+                            <StackPanel MinHeight="155" Height="155">
+                                <DockPanel>
+                                    <Label HorizontalAlignment="Center" FontSize="30">LᴏɢIɴ</Label>
+                                </DockPanel>
+                                <DockPanel HorizontalAlignment="Center">
+                                    <Label>Username:</Label>
+                                    <TextBox Name="StagUserNameTextBox" HorizontalAlignment="Center" VerticalAlignment="Center"  MinWidth="60" MaxWidth="100"  Text=""></TextBox>
+                                </DockPanel>
+                                <DockPanel HorizontalAlignment="Center">
+                                    <Label>Password:</Label>
+                                    <PasswordBox Name="StagPasswordTextBox" KeyDown="StagPasswordTextBox_OnKeyDown" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="60" Password=""></PasswordBox>
+                                </DockPanel>
+                                <DockPanel Background="MediumSeaGreen" Margin="8" HorizontalAlignment="Center">
+                                    <Label Name="LogInStatusLabel" Visibility="Collapsed">
+                                        Lᴏɢɢᴇᴅ Iɴ!
+                                    </Label>
+
+                                </DockPanel>
+                                <DockPanel>
+                                    <materialDesign:Card Name="LogInProgressBar"  Visibility="Collapsed" UniformCornerRadius="14" Width="40" Padding="4">
+                                        <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" 
+                                                     Value="50"
+                                                     IsIndeterminate="True" />
+                                    </materialDesign:Card>
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+                    </materialDesign:DialogHost>
+                </DockPanel>
+            </DockPanel>
+        </Grid>
+        <Grid Name="LoggedInGrid" Visibility="Visible" Grid.ColumnSpan="2">
+            <Grid  Name="StagHelperSettingsGrid" ZIndex="1000">
+                <StackPanel Name="SettingsStackPanel">
+                    <Expander Name="SettingsExpander" HorizontalAlignment="Stretch"
+                      Header="StagHelper">
+                        <StackPanel Orientation="Horizontal"
+                            TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
+                            Margin="24,8,24,16">
+                            <materialDesign:Card Background="{DynamicResource PrimaryHueDarkBrush}"
+                                                 Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
+                                                 Width="200"
+                                                 Padding="8">
+                                <StackPanel>
+                                    <TextBlock Margin="16 16 12 8" FontSize="16">General Settings</TextBlock>
+                                    <CheckBox Margin="16 4 16 0" Name="ConfigRememberUsernameCheckBox" Style="{StaticResource MaterialDesignUserForegroundCheckBox}" Loaded="ConfigRememberUsernameCheckBox_OnLoaded"  Checked="ConfigRememberUsernameCheckBox_OnChecked">Remember username</CheckBox>
+                                    <CheckBox Margin="16 4 16 0" Name="ConfigStayLoggedInCheckBox" Style="{StaticResource MaterialDesignUserForegroundCheckBox}" Loaded="ConfigStayLoggedInCheckBox_OnLoaded" Checked="ConfigStayLoggedInCheckBox_OnChecked">Stay logged in</CheckBox>
+                                    <CheckBox Margin="16 4 16 0" Name="ConfigCheckForUpdatesCheckBox" Style="{StaticResource MaterialDesignUserForegroundCheckBox}" Loaded="ConfigCheckForUpdatesCheckBox_OnLoaded" Checked="ConfigCheckForUpdatesCheckBox_OnChecked">Check for updates</CheckBox>
+                                    <Separator Style="{StaticResource MaterialDesignLightSeparator}"/>
+                                    <StackPanel Margin="8 0 8 8" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button HorizontalAlignment="Right" Style="{StaticResource MaterialDesignToolForegroundButton}" Width="30" Padding="2 0 0 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                            <materialDesign:PackIcon Kind="CheckAll" />
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </materialDesign:Card>
+                            <StackPanel VerticalAlignment="Center">
+                                <materialDesign:Flipper Style="{StaticResource MaterialDesignCardFlipper}">
+                                    <materialDesign:Flipper.FrontContent>
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                Command="{x:Static materialDesign:Flipper.FlipCommand}"
+                                                Margin="8"
+                                                Width="340"
+                                        >Is this app GDPR friendly ?</Button>
+                                    </materialDesign:Flipper.FrontContent>
+                                    <materialDesign:Flipper.BackContent>
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                Command="{x:Static materialDesign:Flipper.FlipCommand}"
+                                                Margin="8"
+                                                Width="340"
+                                        >It´s not. :)</Button>
+                                    </materialDesign:Flipper.BackContent>
+                                </materialDesign:Flipper>
+                            </StackPanel>
+                            <materialDesign:Card Background="{DynamicResource MaterialDesignBodyLight}"
+                                                 Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
+                                                 Width="200"
+                                                 Padding="8">
+                                <StackPanel>
+                                    <TextBlock Margin="16 16 12 8" FontSize="16"> Advanced settings</TextBlock>
+                                    <CheckBox Name="ConfigLoadCfgFromXmlCheckBox" IsChecked="True" Margin="16 4 16 0" Checked="ConfigLoadCfgFromXmlCheckBox_OnChecked" Loaded="ConfigLoadCfgFromXmlCheckBox_OnLoaded" Style="{StaticResource MaterialDesignUserForegroundCheckBox}">Load config. from XML</CheckBox>
+                                    <CheckBox Name="ConfigUseCacheCheckBox" IsChecked="True" Margin="16 4 16 0" Checked="ConfigUseCacheCheckBox_OnChecked" Loaded="ConfigUseCacheCheckBox_OnLoaded" Style="{StaticResource MaterialDesignUserForegroundCheckBox}">Use cache</CheckBox>
+                                    <CheckBox Name="ConfigShowDebugConsoleCheckBox" IsChecked="True" Margin="16 4 16 0" Checked="ConfigShowDebugConsoleCheckBox_OnChecked" Loaded="ConfigShowDebugConsoleCheckBox_OnLoaded" Style="{StaticResource MaterialDesignUserForegroundCheckBox}">Show debug console</CheckBox>
+                                    <Separator Style="{StaticResource MaterialDesignLightSeparator}"/>
+                                    <StackPanel Margin="8 0 8 8" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button HorizontalAlignment="Right" Style="{StaticResource MaterialDesignToolForegroundButton}" Width="30" Padding="2 0 0 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                            <materialDesign:PackIcon Kind="CheckAll" />
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </materialDesign:Card>
+                        </StackPanel>
+                    </Expander>
+                </StackPanel>
+            </Grid>
+            <Grid Name="ScheduleRootGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="76*"/>
+                    <ColumnDefinition Width="46*"/>
+                    <ColumnDefinition Width="545*"/>
+                    <ColumnDefinition Width="133*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="43*"/>
+                    <RowDefinition Height="37*"/>
+                    <RowDefinition Height="369*"/>
+                </Grid.RowDefinitions>
+                <DockPanel  Name="CardFilterWrapper"  ZIndex="10" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2">
+                    <materialDesign:Card Name="FilterCard"  Background="{DynamicResource MaterialDesignPaper}"  Visibility="Collapsed" KeyDown="FilterCard_OnKeyDown" Width="200" >
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="140" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <StackPanel MinHeight="150" Width="196" Margin="2,0,2,53" Grid.RowSpan="2">
+                                <DockPanel HorizontalAlignment="Center">
+                                    <materialDesign:Card Width="200" Padding="5" Background="{DynamicResource PrimaryHueMidForegroundBrush}">
+                                        <DockPanel >
+                                            <Label>OsId:</Label>
+                                            <TextBox Name="CardOsIdTextBox" HorizontalAlignment="Center" VerticalAlignment="Center"  MinWidth="70" Margin="35 0 0 0" MaxWidth="100"  Text=""></TextBox>
+                                        </DockPanel>
+                                    </materialDesign:Card>
+                                </DockPanel>
+                                <materialDesign:Card Background="{DynamicResource PrimaryHueMidForegroundBrush}" Padding="5" Margin="0 10 0 0" Width="205">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <DockPanel>
+                                            <Label>Name:</Label>
+                                            <DockPanel MinWidth="160">
+                                                <TextBox Name="CardNameTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="15 0 0 0" MinWidth="70" Text=""></TextBox>
+                                            </DockPanel>
+                                        </DockPanel>
+                                        <DockPanel MinWidth="160">
+                                            <Label>SureName:</Label>
+                                            <DockPanel>
+                                                <TextBox Name="CardSureNameTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="70" Text=""></TextBox>
+                                            </DockPanel>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </materialDesign:Card>
+                                <materialDesign:Card Background="{DynamicResource PrimaryHueMidForegroundBrush}" Padding="5" Margin="0 10 0 0"  Width="205">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <DockPanel>
+                                            <Label Name="CardFilterHelpPanel">*Only colored part is req.*</Label>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </materialDesign:Card>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Margin="8 24 8 0" >
+                                <TextBlock Name="CardNameSpecTextbox" FontWeight="Bold">[Name Surname]</TextBlock>
+                                <TextBlock Name="CardRoleTextBox" TextWrapping="Wrap" VerticalAlignment="Center">Role: {Student, Učitel, Katedra, Administrator}</TextBlock>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Right" Grid.Row="2" Orientation="Horizontal" Margin="8">
+                                <Button Style="{StaticResource MaterialDesignToolButton}" Name="CloseFilterButton" Click="CloseCardFilterButton_OnClick"  Width="30" Padding="2 0 10 0"
+                                    materialDesign:RippleAssist.IsCentered="True">
+                                    <materialDesign:PackIcon Kind="close" />
+                                </Button>
+                                <Button Style="{StaticResource MaterialDesignToolButton}" Name="DeleteFilterButton" Click="DeleteCardFilterButton_OnClick"  Width="30" Padding="2 0 2 0"
+                            materialDesign:RippleAssist.IsCentered="True">
+                                    <materialDesign:PackIcon Kind="Delete" />
+                                </Button>
+                                <materialDesign:PopupBox Style="{StaticResource MaterialDesignToolPopupBox}" Padding="2 0 2 0">
+                                    <StackPanel>
+                                        <Button Name="StudentDebugButton" Click="StudentCardDebugButton_OnClick" Content="Debug"/>
+                                    </StackPanel>
+                                </materialDesign:PopupBox>
+                                <Button Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                    materialDesign:RippleAssist.IsCentered="True">
+                                    <materialDesign:PackIcon Kind="Heart" />
+                                </Button>
+                                <Button Grid.Row="0" Name="CardFilterAddConfirmationButton" Visibility="Collapsed" Click="FilterAddConfirmationButton_OnClick" Background="{DynamicResource PrimaryHueMidBrush}" Style="{StaticResource {x:Type Button}}" 
+                                    HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                    <materialDesign:PackIcon Kind="Plus" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </materialDesign:Card>
+                    <materialDesign:Card  Name="CardFilterFoundStudentsCard" Visibility="Collapsed" KeyDown="FilterCard_OnKeyDown"  Height="260" Width="200" >
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <ScrollViewer Height="260" MaxHeight="260">
+                                <StackPanel Name="CardFilterFoundStudentsPlaceHolder">
+                                    <materialDesign:Card  Background="{DynamicResource PrimaryHueMidBrush}" Padding="5" Margin="0 0 0 0"  Height="30" Width="185">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <DockPanel>
+                                                <Label>*Found Students*</Label>
+                                            </DockPanel>
+                                        </StackPanel>
+                                    </materialDesign:Card>
+                                    <materialDesign:Card Name="CardFoundStudent" Visibility="Collapsed" Background="{DynamicResource PrimaryHueMidForegroundBrush}" Padding="5" Margin="0 2 0 0"  Width="185">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <DockPanel>
+                                                <Label Name="CardFoundStudentLabel">none</Label>
+                                            </DockPanel>
+                                        </StackPanel>
+                                    </materialDesign:Card>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
+                    </materialDesign:Card>
+                </DockPanel>
+                <DockPanel ZIndex="-1" Background="{DynamicResource MaterialDesignBodyLight}" Grid.Column="0" Grid.Row="1" >
+                    <Button Margin="0 4 0 0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Week</Button>
+                </DockPanel>
+                <StackPanel ZIndex="-1" Background="{DynamicResource MaterialDesignChipBackground}" Grid.Column="0" Grid.Row="2">
+                    <ScrollViewer Name="DateScrollViewer"  Padding="0 0 0 0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden" MaxHeight="370" Height="370">
+                        <StackPanel Name="DateWeekStackPanel">
+                            <Button Name="DateWeekActualButton"  Background="{DynamicResource MaterialDesignBodyLight}" BorderBrush="{DynamicResource MaterialDesignBodyLight}"  Visibility="Collapsed" Padding="0 0 0 0" Content="ActualWeek"></Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>
+                <StackPanel ZIndex="-1" Grid.Column="1" Grid.Row="1">
+                    <Button Padding="0 0 0 0" Height="38">Day</Button>
+                </StackPanel>
+                <StackPanel Name="DateDayStackPanel" ZIndex="-1" Background="{DynamicResource MaterialDesignBodyLight}" Grid.Column="1" Grid.Row="2">
+                    <DockPanel>
+                        <Button BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="52.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="Mon"></Button>
+                    </DockPanel>
+                    <DockPanel>
+                        <Button  BorderBrush="Transparent" Padding="0 0 0 0" Height="52.7" Background="Transparent" Content="Tue"></Button>
+                    </DockPanel>
+                    <DockPanel>
+                        <Button  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="52.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="Wed"></Button>
+                    </DockPanel>
+                    <DockPanel>
+                        <Button  BorderBrush="Transparent" Padding="0 0 0 0" Height="52.7" Background="Transparent" Content="Thu"></Button>
+                    </DockPanel>
+                    <DockPanel>
+                        <Button  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="52.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="Fri"></Button>
+                    </DockPanel>
+                    <DockPanel>
+                        <Button  BorderBrush="Transparent" Padding="0 0 0 0" Height="52.7" Background="Transparent" Content="Sat"></Button>
+                    </DockPanel>
+                    <DockPanel>
+                        <Button  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="52.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="Sun"></Button>
+                    </DockPanel>
+                </StackPanel>
+                <DockPanel ZIndex="-1" HorizontalAlignment="Left" Name="ScheduleTimeHoursStackPanel" Margin="0 0 0 0" Grid.Column="2"  Grid.Row="1" Background="{DynamicResource MaterialDesignBodyLight}">
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="1"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="2"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="3"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="4"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="5"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="6"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="7"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="8"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="9"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="10"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="11"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="12"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="13"></Button>
+                    <Button Width="36.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="14"></Button>
+                    <Button Width="40.33"  BorderBrush="{DynamicResource MaterialDesignBodyLight}" Padding="0 0 0 0" Height="38.7" Background="{DynamicResource MaterialDesignBodyLight}" Content="15"></Button>
+                </DockPanel>
+                <StackPanel Name="ScheduleContentStackPanel" Grid.Column="2" Grid.Row="2">
+                    <DockPanel LastChildFill="False" Background="{DynamicResource MaterialDesignBodyLight}" Height="52.71">
+
+                    </DockPanel>
+                    <DockPanel LastChildFill="False" Height="52.71">
+
+                    </DockPanel>
+                    <DockPanel LastChildFill="False" Background="{DynamicResource MaterialDesignBodyLight}" Height="52.71">
+
+                    </DockPanel>
+                    <DockPanel LastChildFill="False" Height="52.71">
+
+                    </DockPanel>
+                    <DockPanel LastChildFill="False" Background="{DynamicResource MaterialDesignBodyLight}" Height="52.71">
+
+                    </DockPanel>
+                    <DockPanel LastChildFill="False" Height="52.71">
+
+                    </DockPanel>
+                    <DockPanel LastChildFill="False" Background="{DynamicResource MaterialDesignBodyLight}" Height="52.71">
+
+                    </DockPanel>
+                </StackPanel>
+                <StackPanel Name="FilterWrapperStackPanel"  Grid.RowSpan="2" Grid.Column="3" Grid.Row="1">
+                    <StackPanel Name="FilterStackPanel"  Orientation="Vertical" Height="355" Background="{DynamicResource MaterialDesignToolTipBackground}">
+                        <Button Name="FilterAddButton_0" FontSize="10" Style="{StaticResource MaterialDesignRaisedButton}" Width="125" Margin="0 5 0 0"
+                                ToolTip="Click to add filter"  Content="Add New Filter" Click="FilterAddButton_Click"/>
+                    </StackPanel>
+                    <StackPanel Name="FilterSelectionStackPanel" Background="{DynamicResource MaterialDesignPaper}" Height="52"  VerticalAlignment="Center">
+                        <DockPanel>
+                            <Label>Filterselect:</Label>
+                            <Slider Name="FilterSelectionSlideBar" ValueChanged="FilterSelectionSlideBar_OnValueChanged" Style="{StaticResource MaterialDesignSlider}" Minimum="0" Maximum="1" Width="30" Margin="5" IsSnapToTickEnabled="True" IsManipulationEnabled="False" IsMoveToPointEnabled="False" Orientation="Horizontal"  />
+                        </DockPanel>
+                        <DockPanel>
+                           <Label Name="FilterSelectionLabel" Padding="0 0 0 10" HorizontalAlignment="Center"> Common </Label>
+                        </DockPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+            <Grid Name="ShadowDimmGridGrid" Visibility="Collapsed" Background="{DynamicResource MaterialDesignBodyLight}" ZIndex="-1">
+
+            </Grid>
+            <Grid Name="TestGrid" Visibility="Collapsed">
+                <Button Content="cntroller_Test" HorizontalAlignment="Left" Margin="10,51,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+                <TextBox Name="StudentAndTeacherTextBox"  VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Height="24" Margin="99,102,0,0" TextWrapping="Wrap" Text="LastFetchedStudents:{F17026,F17198}, Teacher{TSurname, TName}" VerticalAlignment="Top" Width="400"/>
+                <Button Name="FindCommonScheduleActions" Content="FindSActions" HorizontalAlignment="Left" Height="24" Margin="10,102,0,0" VerticalAlignment="Top" Width="75" Click="FindCommonScheduleActions_Click"/>
+                <Button Content="FillableSActions" HorizontalAlignment="Left" Margin="10,161,0,0" VerticalAlignment="Top" Width="86" Click="Button_Click_1"/>
+            </Grid>
+        </Grid>
+        <Grid Name="ExitSelectionGrid" Background="{DynamicResource MaterialDesignBodyLight}" Visibility="Collapsed" ZIndex="1000">
+            <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+            <materialDesign:Card VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="200" Width="300">
+                <StackPanel>
+                    <StackPanel Height="50"></StackPanel>
+                    <Label FontSize="25" HorizontalAlignment="Center">Confirm exit</Label>
+                    <DockPanel Margin="0 5 0 0" HorizontalAlignment="Center" LastChildFill="False">
+                        <Button Name="ExitButtonConfirm" Width="100" Click="ExitButtonConfirm_Click">Confirm</Button>
+                        <Button Name="ExitButtonBack" Width="100" Click="ExitButtonBack_Click">Back</Button>
+                    </DockPanel>
+                </StackPanel>
+            </materialDesign:Card>
+            </Grid>
+        </Grid>
+        <Grid Name="ExitGrid" Visibility="Collapsed" Grid.ColumnSpan="2">
+            <Rectangle Fill="{DynamicResource ResourceKey=PrimaryHueMidBrush}" HorizontalAlignment="Left" Height="100" Margin="-33,179,-28,0" Stroke="Transparent" VerticalAlignment="Top" Width="861"/>
+            <Rectangle Fill="{DynamicResource PrimaryHueMidBrush}" HorizontalAlignment="Left" Height="297" Margin="-2,-130,0,0" Stroke="White" VerticalAlignment="Top" Width="260" RenderTransformOrigin="0.5,0.5">
+                <Rectangle.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="-43.996"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Rectangle.RenderTransform>
+            </Rectangle>
+            <Label Content="ᴅᴏ ɴᴏᴛ ᴛᴜʀɴ ᴏғғ ʏᴏᴜʀ ᴄᴏᴍᴘᴜᴛᴇʀ." FontSize="30" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="340,0,0,0" VerticalAlignment="Top" Width="460" Height="100"/>
+            <Image Source="Resources/Images/UJEP_Logo.svg.png" HorizontalAlignment="Left" Height="166" Margin="43,279,0,0" VerticalAlignment="Top" Width="712"/>
+            <TextBox Foreground="White" TextAlignment="Center" IsReadOnly="True" FontSize="30" HorizontalAlignment="Left" Height="48" Margin="76,64,0,0" TextWrapping="Wrap" Text="Bʏᴇ&#xD;&#xA;" VerticalAlignment="Top" Width="120"/>
+
+        </Grid>
+    </Grid>
+</Window>

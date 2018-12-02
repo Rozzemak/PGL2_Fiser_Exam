@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/PGL2_Fis_Marek_Slavka/v15
+/PGL2_Fis_Marek_Slavka/obfuscation/Dotfuscated/PGL2_Fis_Marek_Slavka.exe
+/PGL2_Fis_Marek_Slavka/obfuscation/Dotfuscated/Map.xml
+/PGL2_Fis_Marek_Slavka/obfuscation/Dotfuscated/Config.xml
+/PGL2_Fis_Marek_Slavka/obfuscation/Dotfuscator1.xml
+/PGL2_Fis_Marek_Slavka/bin/Debug/PGL2_Fis_Marek_Slavka.pdb
+/PGL2_Fis_Marek_Slavka/bin/Debug/PGL2_Fis_Marek_Slavka.exe.config
+/PGL2_Fis_Marek_Slavka/bin/Debug/PGL2_Fis_Marek_Slavka.exe
+/PGL2_Fis_Marek_Slavka/bin/Debug/Config.xml
