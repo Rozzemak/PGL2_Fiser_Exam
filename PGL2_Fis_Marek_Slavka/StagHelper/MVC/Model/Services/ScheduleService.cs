@@ -34,7 +34,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Services
                                   "&semestr=%25" +
                                   "&outputFormat=json" +
                                   "&osCislo=" + student.OsId +
-                                  "&rok=2017"; // specifikovat tady rok... gradeActual asi,... nepamatuju :-D
+                                  "&rok=" + (DateTime.Today.Year - 1); // specifikovat tady rok... gradeActual asi,... nepamatuju :-D
                     var result = Client.SendRequest(request);
                     if (result != "" && result != "[null]")
                     {

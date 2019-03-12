@@ -45,11 +45,13 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Services
             {
                 string request =
                     "student/getStudentInfo?" +
-                    "zobrazovatSimsUdaje=true&" +
-                    "lang=en&outputFormat=json&" +
-                    "osCislo=" + osId + "&" +
-                    "rok=2017";
+                    "stagUser=" + Client.StagUser.StagOsId +
+                    "&osCislo=" + osId +
+                    "&rok=" + (DateTime.Today.Year - 1)+
+                    "&zobrazovatSimsUdaje=true" +
+                    "&lang=cs&outputFormat=json";           
                 var result = Client.SendRequest(request);
+                result.ToString();
                 if (result != "" && result != "[null]")
                 {
                     result = result.Substring(1, result.Length - 2);
@@ -133,7 +135,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Services
                                  "stav=S&" +
                                  "fakulta=" + Enum.GetName(typeof(DepartmentsEnum), departmentsEnum) +
                                  "&outputFormat=json&" +
-                                 "rok=2017";
+                                 "rok="+ (DateTime.Today.Year - 1);
                 result = Client.SendRequest(request);
                 if (result != "" && result != "[null]")
                 {

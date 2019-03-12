@@ -8,6 +8,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Configuration;
+using System.Windows.Media.Animation;
 using Newtonsoft.Json;
 using PGL2_Fis_Marek_Slavka.StagHelper.Debug;
 using PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Exceptions;
@@ -45,8 +47,12 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
  
             this.StagUser = stagUser;
 
-            HClient = new HttpClient(HttpClientHandler);
-            this.HClient.BaseAddress = new Uri("https://ws.ujep.cz/ws/services/rest/");
+            HttpClientHandler.UseCookies = false;    
+
+            HClient = new HttpClient(HttpClientHandler)
+            {
+                BaseAddress = new Uri("https://ws.ujep.cz/ws/services/rest2/"),
+            };
             this.HClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             this.SendRequest += AddHttpGetRequest;        
@@ -110,7 +116,14 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
             {
                 // Set auth headers, and thenm just for the case, add additional Network Credentials for handler.
                 // var byteArray = Encoding.ASCII.GetBytes(stagUser.FormatCredentials());
-                HttpClientHandler.Credentials = new NetworkCredential(stagUser.UserName, stagUser.Password);
+                //AuthenticationMode authMode = ((AuthenticationSection)WebConfigurationManager.GetSection("http://stag.ujep.cz/")).Mode;
+
+                var ca = new CredentialCache
+                {
+                    { new Uri("https://ws.ujep.cz/"), "Basic", new NetworkCredential(stagUser.UserName, stagUser.Password)}
+                };
+                HttpClientHandler.Credentials = ca;
+                HClient.DefaultRequestHeaders.Add("JSESSIONID", "token="+);
                 // Parse OsId from Json
                 stagUser.StagOsId =  GetAndParseStudentOsIdFromStagName(stagUser.UserName);
                 // If OsID is non existent, then user does not exist.
@@ -208,14 +221,14 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
         private string _SendReq(string request)
         {
             string jsonText = "";
-            var response = this.HClient.GetAsync(this.HClient.BaseAddress + request).Result;
-            using (HttpContent content = response.Content)
-            {
-                // ... Read the string.
-                Task<string> result = content.ReadAsStringAsync();
-                jsonText = result.Result;
-            }
-            if (response.IsSuccessStatusCode)
+            var message = new HttpRequestMessage(HttpMethod.Get, request);
+            if(this.HttpClientHandler?.CookieContainer?.GetCookies(new Uri("https://portal.ujep.cz")).Count != 0)
+            message.Headers.Add("cookie", this.HttpClientHandler?.CookieContainer?.GetCookies(new Uri("https://portal.ujep.cz"))[0].Value);
+            //var response = this.HClient.GetAsync(message.RequestUri).Result;
+
+            var result = HClient.SendAsync(message); 
+            jsonText = result.Result.Content.ReadAsStringAsync().Result;
+            if (result.Result.IsSuccessStatusCode)
             {
                 if (jsonText != null && jsonText != Null1 && jsonText != Null2 && jsonText != Null3 &&
                     jsonText != "n")
@@ -223,7 +236,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
                     return jsonText;
                 }
             }
-            throw new ClientException("Http error:["+ response.StatusCode.ToString() + "]");
+            throw new ClientException("Http error:["+ result.Result.StatusCode.ToString() + "]");
             
             //throw new ClientException("Bad unidentified response message.");
         }
