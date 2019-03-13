@@ -1,6 +1,7 @@
 ﻿using PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.DAO;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -47,7 +48,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
  
             this.StagUser = stagUser;
 
-            HttpClientHandler.UseCookies = false;    
+            HttpClientHandler.UseCookies = true;    
 
             HClient = new HttpClient(HttpClientHandler)
             {
@@ -123,7 +124,8 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
                     { new Uri("https://ws.ujep.cz/"), "Basic", new NetworkCredential(stagUser.UserName, stagUser.Password)}
                 };
                 HttpClientHandler.Credentials = ca;
-                HClient.DefaultRequestHeaders.Add("JSESSIONID", "token="+);
+                //HClient.DefaultRequestHeaders;
+                HttpClientHandler.CookieContainer = Login();
                 // Parse OsId from Json
                 stagUser.StagOsId =  GetAndParseStudentOsIdFromStagName(stagUser.UserName);
                 // If OsID is non existent, then user does not exist.
@@ -143,6 +145,47 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
                 Console.Title = "Debug:[guest]";
             }
         }
+
+        private CookieContainer Login()
+        {
+            var userName = StagUser.UserName;
+            var password = "Masterhu1";
+
+            ASCIIEncoding encoding = new ASCIIEncoding();
+            string postData = "loginName=st82765&password=Masterhu1";
+            byte[] postDataBytes = encoding.GetBytes(postData);
+
+            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("https://portal.ujep.cz/portal/studium/index.html?");
+
+            httpWebRequest.Method = "POST";
+            httpWebRequest.Host = "portal.ujep.cz";
+            httpWebRequest.Referer = "https://portal.ujep.cz/portal/studium/index.html?";
+            //httpWebRequest.Headers.Add("Cookie", "JSSESIONID=7821F614699208A99689534B63BE8DF0");
+            httpWebRequest.ContentType = "application/x-www-form-urlencoded";
+            httpWebRequest.ContentLength = postDataBytes.Length;
+            httpWebRequest.AllowAutoRedirect = false;
+
+            using (var stream = httpWebRequest.GetRequestStream())
+            {
+                stream.Write(postDataBytes, 0, postDataBytes.Length);
+                stream.Close();
+            }
+
+            var cookieContainer = new CookieContainer();
+
+            using (var httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+            {
+                
+                var cHeader = httpWebResponse.Headers.Get("Set-Cookie");
+                cookieContainer.SetCookies(new Uri("https://portal.ujep.cz/"), cHeader);
+                HClient.DefaultRequestHeaders.Add("Set-Cookie", cHeader);
+                StagUser.SessionCookie = cHeader.Split(';').FirstOrDefault();
+                //HClient.DefaultRequestHeaders.Add("JSESSIONID", cHeader.Split('=').Last());
+            }
+
+            return cookieContainer;
+        }
+
 
         private string AddHttpGetRequest(string request)
         {
@@ -218,14 +261,15 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
         /// </summary>
         /// <param name="request">request -(stag base address)</param>
         /// <returns>Result string of request previously sent to page.</returns>
-        private string _SendReq(string request)
+        private string _SendReq(string request, HttpMethod method = null)
         {
             string jsonText = "";
-            var message = new HttpRequestMessage(HttpMethod.Get, request);
-            if(this.HttpClientHandler?.CookieContainer?.GetCookies(new Uri("https://portal.ujep.cz")).Count != 0)
-            message.Headers.Add("cookie", this.HttpClientHandler?.CookieContainer?.GetCookies(new Uri("https://portal.ujep.cz"))[0].Value);
-            //var response = this.HClient.GetAsync(message.RequestUri).Result;
+            var message = new HttpRequestMessage(method != null ? method : HttpMethod.Get, request);
 
+            //var response = this.HClient.GetAsync(message.RequestUri).Result;
+            message.Headers.Add("Accept-Encoding", "gzip, deflate");
+            message.Headers.Add("Connection", "keep-alive");
+            message.Headers.Add("Cookie", StagUser.SessionCookie);
             var result = HClient.SendAsync(message); 
             jsonText = result.Result.Content.ReadAsStringAsync().Result;
             if (result.Result.IsSuccessStatusCode)

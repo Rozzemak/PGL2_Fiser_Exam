@@ -12,6 +12,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.DAO
         public string UserName { get; private set; }
         public SecureString Password { get; private set; }
         public string StagOsId { get; set; }
+        public string SessionCookie { get; set; }
 
         public StagUser(string userName, SecureString password, string stagOsId = "")
         {
