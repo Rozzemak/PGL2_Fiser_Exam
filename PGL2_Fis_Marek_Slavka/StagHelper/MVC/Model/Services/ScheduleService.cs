@@ -34,22 +34,21 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Services
                                   "&semestr=%25" +
                                   "&outputFormat=json" +
                                   "&osCislo=" + student.OsId +
-                                  "&rok=" + (DateTime.Today.Year - 1); // specifikovat tady rok... gradeActual asi,... nepamatuju :-D
-                    var result = Client.SendRequest(request);
+                                  "&rok=" + (DateTime.Today.Year - 1)+
+                                  "&lang=cs"; // specifikovat tady rok... gradeActual asi,... nepamatuju :-D
+                    var result =  Client.SendRequest(request);
                     if (result != "" && result != "[null]")
                     {
                         // Since rest for schedules is one of few WS from stag, that needs some form of auth (that i´m gonna use)
                         // I will just throw away any form of html response. I don´t need it. (response is HTML? => throw ex.)
-                        if (result.Substring(0, 1).Contains("["))
-                        {
+                        if (result.Substring(0, 1) == "[")
                             result = result.Substring(1, result.Length - 2);
-                            var scheduleJson = JsonConvert.DeserializeObject<ScheduleJson>(result);
-                            var schedule = new Schedule(student, scheduleJson);
-                            if (!ServiceCollection.Contains(schedule))
-                            {
-                                ServiceCollection.Add(schedule);
-                                return new List<Schedule>() { schedule };
-                            }
+                        var scheduleJson = JsonConvert.DeserializeObject<ScheduleJson>(result);
+                        var schedule = new Schedule(student, scheduleJson);
+                        if (!ServiceCollection.Contains(schedule))
+                        {
+                            ServiceCollection.Add(schedule);
+                            return new List<Schedule>() { schedule };
                         }
                     }
                     throw new ServiceException("No student schedule found with specified studentOsId:[" + student.OsId + "]");

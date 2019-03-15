@@ -1,11 +1,13 @@
 ﻿using PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.DAO;
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,14 +31,14 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
     class Client
     {
         public HttpClientHandler HttpClientHandler = new HttpClientHandler();
-        public HttpClient HClient;
+        public WebClient HClient;
         public delegate string Worker(string request);
         public Worker SendRequest;
         private Thread _workerThread;
         public List<Task> Works = new List<Task>();
         private readonly BaseDebug _debug;
 
-        public  StagUser StagUser;
+        public StagUser StagUser;
 
         private const string Null1 = "null";
         private const string Null2 = "[]";
@@ -45,23 +47,25 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
         public Client(BaseDebug debug, StagUser stagUser)
         {
             this._debug = debug;
- 
+
             this.StagUser = stagUser;
 
-            HttpClientHandler.UseCookies = true;    
+            HttpClientHandler.UseCookies = true;
 
-            HClient = new HttpClient(HttpClientHandler)
+            HClient = new WebClient()
             {
-                BaseAddress = new Uri("https://ws.ujep.cz/ws/services/rest2/"),
+                Encoding = Encoding.UTF8,
+                BaseAddress = "https://ws.ujep.cz/ws/services/rest2/",
+                Headers = new WebHeaderCollection()
             };
-            this.HClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            //this.HClient.DefaultRequestHeaders.Accept.Add();
 
-            this.SendRequest += AddHttpGetRequest;        
+            this.SendRequest += AddHttpGetRequest;
             DoWork();
 
             if (string.IsNullOrEmpty(StagUser.StagOsId))
             {
-                this.LogIn(this.StagUser);
+                this.SetLoginData(this.StagUser);
             }
         }
 
@@ -74,11 +78,11 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
                     Thread.Sleep(33);
                     for (int i = 0; i < Works.Count; i++)
                     {
-                           // Old impl. bad if statement...
-                           // Works[i].Status != TaskStatus.Running
-                           // && Works[i].Status != TaskStatus.RanToCompletion
-                           // && Works[i].Status != TaskStatus.WaitingForChildrenToComplete
-                           // && Works[i].Status != TaskStatus.Faulted
+                        // Old impl. bad if statement...
+                        // Works[i].Status != TaskStatus.Running
+                        // && Works[i].Status != TaskStatus.RanToCompletion
+                        // && Works[i].Status != TaskStatus.WaitingForChildrenToComplete
+                        // && Works[i].Status != TaskStatus.Faulted
                         if (Works[i].Status == TaskStatus.Created)
                             Works[i].Start();
                         else if (Works[i].Status == TaskStatus.Faulted)
@@ -111,7 +115,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
             _workerThread.Start();
         }
 
-        public void LogIn(StagUser stagUser)
+        public void SetLoginData(StagUser stagUser)
         {
             if (stagUser.UserName != "guest" && stagUser.UserName != "")
             {
@@ -121,13 +125,13 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
 
                 var ca = new CredentialCache
                 {
-                    { new Uri("https://ws.ujep.cz/"), "Basic", new NetworkCredential(stagUser.UserName, stagUser.Password)}
+                    { new Uri("https://ws.ujep.cz/"), Enum.GetName(typeof(AuthenticationSchemes), AuthenticationSchemes.Basic), new NetworkCredential(stagUser.UserName, stagUser.Password)}
                 };
                 HttpClientHandler.Credentials = ca;
                 //HClient.DefaultRequestHeaders;
                 HttpClientHandler.CookieContainer = Login();
                 // Parse OsId from Json
-                stagUser.StagOsId =  GetAndParseStudentOsIdFromStagName(stagUser.UserName);
+                stagUser.StagOsId = GetAndParseStudentOsIdFromStagName(stagUser.UserName);
                 // If OsID is non existent, then user does not exist.
                 if (string.IsNullOrEmpty(stagUser.StagOsId))
                 {
@@ -138,7 +142,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
                     _debug.AddMessage<object>(new Message<object>("Login credentials set. You are [" + stagUser.UserName + "]" + "[" + stagUser.StagOsId + "]"));
                 }
 
-                Console.Title = "Debug:["+stagUser.UserName+"]";
+                Console.Title = "Debug:[" + stagUser.UserName + "]";
             }
             else
             {
@@ -152,18 +156,25 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
             var password = "Masterhu1";
 
             ASCIIEncoding encoding = new ASCIIEncoding();
-            string postData = "loginName=st82765&password=Masterhu1";
+            string postData = "loginName="+ StagUser.UserName +"&password=" + new NetworkCredential(StagUser.UserName, StagUser.Password).Password;
             byte[] postDataBytes = encoding.GetBytes(postData);
 
-            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("https://portal.ujep.cz/portal/studium/index.html?");
+            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("https://ws.ujep.cz/ws/login?username=st82765&password=Masterhu1");
 
             httpWebRequest.Method = "POST";
-            httpWebRequest.Host = "portal.ujep.cz";
-            httpWebRequest.Referer = "https://portal.ujep.cz/portal/studium/index.html?";
+            httpWebRequest.Host = "ws.ujep.cz";
+            httpWebRequest.Referer = "https://ws.ujep.cz/ws/";
             //httpWebRequest.Headers.Add("Cookie", "JSSESIONID=7821F614699208A99689534B63BE8DF0");
             httpWebRequest.ContentType = "application/x-www-form-urlencoded";
             httpWebRequest.ContentLength = postDataBytes.Length;
-            httpWebRequest.AllowAutoRedirect = false;
+            httpWebRequest.AllowAutoRedirect = true;
+
+            //HClient.Credentials = new NetworkCredential(StagUser.UserName, StagUser.Password);
+
+
+            // Stag ssl certification has gone missing. :-
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             using (var stream = httpWebRequest.GetRequestStream())
             {
@@ -175,10 +186,10 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
 
             using (var httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse())
             {
-                
+
                 var cHeader = httpWebResponse.Headers.Get("Set-Cookie");
-                cookieContainer.SetCookies(new Uri("https://portal.ujep.cz/"), cHeader);
-                HClient.DefaultRequestHeaders.Add("Set-Cookie", cHeader);
+                cookieContainer.SetCookies(new Uri("https://ws.ujep.cz/"), cHeader);
+                HClient.Headers.Add("Set-Cookie", cHeader);
                 StagUser.SessionCookie = cHeader.Split(';').FirstOrDefault();
                 //HClient.DefaultRequestHeaders.Add("JSESSIONID", cHeader.Split('=').Last());
             }
@@ -192,7 +203,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
             Task<string> task = new Task<string>(() => { return _SendReq(request); });
             Works.Add(task);
             _debug.AddMessage<object>(new Message<object>("Http request sent:[" + request + "]" + " |TaskID[" + task.Id + "]", MessageTypeEnum.HttpClient));
-            while (Works.Contains(task)) { Thread.Sleep(1);}
+            while (Works.Contains(task)) { Thread.Sleep(1); }
             if (task.Status == TaskStatus.RanToCompletion)
                 _debug.AddMessage<object>(new Message<object>("Http response received" + " |TaskID[" + task.Id + "]", MessageTypeEnum.HttpClient));
             // There is a problem when getting result from task, that has faulted => exception will raise as from the thread,
@@ -209,7 +220,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
                     if (e is ClientException)
                     {
                         // Create bunch of custom exceptions!
-                        _debug.AddMessage_Assync<object>(new Message<object>((e.Message),MessageTypeEnum.Exception)).Wait(-1);
+                        _debug.AddMessage_Assync<object>(new Message<object>((e.Message), MessageTypeEnum.Exception)).Wait(-1);
                     }
                     else
                     {
@@ -267,21 +278,28 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model
             var message = new HttpRequestMessage(method != null ? method : HttpMethod.Get, request);
 
             //var response = this.HClient.GetAsync(message.RequestUri).Result;
-            message.Headers.Add("Accept-Encoding", "gzip, deflate");
-            message.Headers.Add("Connection", "keep-alive");
-            message.Headers.Add("Cookie", StagUser.SessionCookie);
-            var result = HClient.SendAsync(message); 
-            jsonText = result.Result.Content.ReadAsStringAsync().Result;
-            if (result.Result.IsSuccessStatusCode)
+
+            //HClient?.Headers.Set("Accept-Encoding", "gzip, deflate");
+            //HClient?.Headers.Set("Connection", "keep-alive");
+            HClient?.Headers.Set("Cookie", StagUser?.SessionCookie);
+            try
             {
+                var result = HClient.DownloadString(new Uri(HClient.BaseAddress + request));
+                //var byteArray = result.Result.Content.ReadAsByteArrayAsync().Result;
+                //jsonText = Encoding.UTF8.GetString(byteArray, 0, byteArray.Length);
+                jsonText = result;
                 if (jsonText != null && jsonText != Null1 && jsonText != Null2 && jsonText != Null3 &&
                     jsonText != "n")
                 {
                     return jsonText;
                 }
+
             }
-            throw new ClientException("Http error:["+ result.Result.StatusCode.ToString() + "]");
-            
+            catch (Exception e)
+            {
+               throw new ClientException("Http error:[" + e.Data + "]");
+            }
+            throw new ClientException("Nothing happened.");
             //throw new ClientException("Bad unidentified response message.");
         }
     }

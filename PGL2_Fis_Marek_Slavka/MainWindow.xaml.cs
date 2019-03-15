@@ -34,6 +34,7 @@ using PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Exceptions;
 using PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.WeekRange;
 using PGL2_Fis_Marek_Slavka.StagHelper.MVC.View.ViewModel;
 using RoutedEventArgs = System.Windows.RoutedEventArgs;
+using System.Net;
 
 namespace PGL2_Fis_Marek_Slavka
 {
@@ -357,6 +358,7 @@ namespace PGL2_Fis_Marek_Slavka
                     string name = _controller.Config.LoadedStagUser.UserName;
                     SecureString psswd = _controller.Config.LoadedStagUser.Password;
                     _controller = new Controller(new StagUser(name, psswd), _scheduleView, this);
+                    _controller.Client.SetLoginData(_controller.Client.StagUser);
                     AttemtToLogIn();
                 }
                 else if (_controller.Config.LoadedStagUser != null && _controller.Config.ConfigVariables.IsRememberUserName)
@@ -396,6 +398,7 @@ namespace PGL2_Fis_Marek_Slavka
                     }
                     passwd = "";
                     _controller = new Controller(new StagUser(name, scPasswd), _scheduleView, this);
+                    _controller.Client.SetLoginData(_controller.Client.StagUser);
                     AttemtToLogIn();
                 });
                 _thread.Start();

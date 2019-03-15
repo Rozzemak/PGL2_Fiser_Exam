@@ -54,6 +54,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Services
                 result.ToString();
                 if (result != "" && result != "[null]")
                 {
+                    if(result.Substring(0,1) == "[")
                     result = result.Substring(1, result.Length - 2);
                     var student = JsonConvert.DeserializeObject<Student>(result);
                     if (!ServiceCollection.Contains(student))
@@ -79,7 +80,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Services
                     var result = Client.SendRequest(request);
                     if (result != "" && result != "[null]" && result != "n")
                     {
-                        string modResult = result.Substring(1, result.Length - 2);
+                        string modResult =  (result.Substring(0, 1) == "[") ? result.Substring(1, result.Length - 2) : result;
                         var students = JsonConvert.DeserializeObject<StudentOfSubjectJson>(modResult);
                         if (students.Students.Count > 0)
                         {
@@ -112,7 +113,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Services
                 var result = Client.SendRequest(request);
                 if (result != "" && result != "[null]" && result != "n")
                 {
-                    string modResult = result.Substring(1, result.Length - 2);
+                    string modResult = (result.Substring(0, 1) == "[") ? result.Substring(1, result.Length - 2) : result;
                     var students = JsonConvert.DeserializeObject<StudentsJson>(modResult);
                     if (students.Students.Count > 0)
                     {
@@ -139,7 +140,7 @@ namespace PGL2_Fis_Marek_Slavka.StagHelper.MVC.Model.Services
                 result = Client.SendRequest(request);
                 if (result != "" && result != "[null]")
                 {
-                    string modResult = result.Substring(1, result.Length - 2);
+                    string modResult = (result.Substring(0, 1) == "[") ? result.Substring(1, result.Length - 2) : result;
                     var students = JsonConvert.DeserializeObject<StudentsJson>(modResult);
                     if (students.Students.Count > 0)
                     {
